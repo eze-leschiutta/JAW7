@@ -11,25 +11,52 @@ let listaProductos = [
     { nombre: 'Leche', cantidad: 5, precio: 78.90 }
 ]
 
+let crearLista = true;
+let ul;
 
 /* ----------------------------------------- */
 /*             FUNCIONES GLOBALES            */
 /* ----------------------------------------- */
 
+/* Borrar Producto */
+function borrarProd(index) {
+    console.log('borrarProd', index);
+    // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
+    listaProductos.splice(index, 1);
+    renderLista();
+}
+
+
+/* Cambiar Cantidad */
+function cambiarCantidad(index, el) {
+    let cantidad = parseInt(el.value);
+    console.log('cambiarCantidad', index, cantidad);
+
+    listaProductos[index].cantidad = cantidad;
+}
+
+/* Cambiar Precio */
+function cambiarPrecio(index, el) {
+    let precio = Number(el.value);
+    console.log('cambiarPrecio', index, precio);
+
+    listaProductos[index].precio = precio;
+}
+
+
 /* FUNCIÓN RENDER LISTA */
 function renderLista() {
     console.log('Render Lista');
 
-    let ul = document.createElement('ul');
-    ul.classList.add('demo-list-icon', 'mdl-list', 'w-100');
-    console.log(ul);
+    if(crearLista) {
+        ul = document.createElement('ul');
+        ul.classList.add('demo-list-icon', 'mdl-list', 'w-100');
+    }
 
     ul.innerHTML = '';
 
     listaProductos.forEach((prod, index) => {
-
-        console.log(prod, index);
-
+  
         ul.innerHTML += `
         
         <li class="mdl-list__item">
@@ -47,7 +74,7 @@ function renderLista() {
             <!-- Cantidad del producto -->
             <span class="mdl-list__item-primary-content w-20">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="text" id="cantidad-${index}" value="${prod.cantidad}">
+                    <input onchange="cambiarCantidad(${index}, this)" class="mdl-textfield__input" type="text" id="cantidad-${index}" value="${prod.cantidad}">
                     <label class="mdl-textfield__label" for="cantidad-${index}">Cantidad</label>
                 </div>
             </span>
@@ -55,23 +82,28 @@ function renderLista() {
             <!-- Precio del producto -->
             <span class="mdl-list__item-primary-content w-20 ml-item">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="text" id="precio-${index}" value="${prod.precio}">
+                    <input onchange="cambiarPrecio(${index}, this)" class="mdl-textfield__input" type="text" id="precio-${index}" value="${prod.precio}">
                     <label class="mdl-textfield__label" for="precio-${index}">Precio($)</label>
                 </div>
             </span>
 
             <!-- Acción (Borrar producto) -->
             <span class="mdl-list__item-primary-content w-20">
-                <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+                <button onclick="borrarProd(${index})" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
                     <i class="material-icons">remove_shopping_cart</i>
                 </button>
             </span>
-
         </li>`
-        
     })
 
-    document.getElementById('lista').appendChild(ul);
+    if(crearLista) {
+        document.getElementById('lista').appendChild(ul);
+    } else {
+        componentHandler.upgradeElements(ul);
+    }
+
+    crearLista = false;
+
 }
 
 /* ----------------------------------------- */
@@ -79,7 +111,35 @@ function renderLista() {
 /* ----------------------------------------- */
 
 function configurarListeners() {
-    console.log('Configurar Listeners')
+    console.log('Configurar Listeners');
+
+    /* Ingreso del producto nuevo */
+
+    document.getElementById('btn-entrada-producto').addEventListener('click', () => {
+        console.log('btn-entrada-producto');
+
+        let input = document.getElementById('ingreso-producto');
+        let producto = input.value;
+        console.log(producto);
+
+        if(producto) {
+            listaProductos.push({ nombre: producto, cantidad: 1, precio: 0});
+            renderLista();
+            input.value = null;
+        }
+    })
+
+    /* Ingreso del producto nuevo */
+    document.getElementById('btn-borrar-productos').addEventListener('click', () => {
+        console.log('btn-borrar-productos');
+
+        if(confirm('¿Desea borrar todos los productos?')) {
+            listaProductos = [];
+            renderLista();
+        }
+    })
+
+
 }
 
 
