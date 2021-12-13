@@ -121,7 +121,7 @@ function configurarListeners() {
         let input = document.getElementById('ingreso-producto');
         let producto = input.value;
         console.log(producto);
-
+        
         if(producto) {
             listaProductos.push({ nombre: producto, cantidad: 1, precio: 0});
             renderLista();

@@ -18,7 +18,8 @@ https://fonts.google.com/icons?selected=Material+Icons:filter_alt
 
 * Split HTML Attributes (Vue, React, Angular)
 
-# Lighthouse
+# Lighthouse en local
+Necesitamos tener instaldo Node
 
 https://www.npmjs.com/package/lighthouse
 
@@ -29,3 +30,24 @@ npm i -g lighthouse
 ```bash
 lighthouse https://www.example.com --view --only-categories=pwa
 ```
+
+# Emulador Android Online
+https://apkoneline.net
+
+
+# Manifest 
+
+https://developer.mozilla.org/es/docs/Web/Manifest
+https://web.dev/add-manifest/
+
+# Generador Manifest
+
+https://manifest-gen.netlify.app/
+
+# Gotero para capturar color
+http://colorcop.net/
+
+# Gotero para captura color de la web
+https://chrome.google.com/webstore/detail/colorzilla/bhlhnicpbhignbdhedgjhgdocnmhomnp/related?hl=es-419
+
+**IMPORTANTE**: El archivo manifest.json al mismo nivel que el index.html, en el directorio raíz de mi aplicación web/pwa
