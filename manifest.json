@@ -1,8 +1,8 @@
 {
   "name": "Super Lista Productos",
   "short_name": "Super Lista",
-  "theme_color": "#FFFF00",
-  "background_color": "#9C27B0",
+  "theme_color": "#9C27B0",
+  "background_color": "#FFFF00",
   "display": "standalone",
   "orientation": "any",
   "scope": "/",

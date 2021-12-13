@@ -138,9 +138,28 @@ function configurarListeners() {
             renderLista();
         }
     })
-
-
 }
+
+/* ------------------------------------------------- */
+/*             REGISTRAR SERVICE WORKER              */
+/* ------------------------------------------------- */
+function registrarServiceWorker() {
+    console.log('serviceWorker' in navigator); // true o false // Si el navegador no tiene serviceWorker me va a dar false
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            this.navigator.serviceWorker.register('./sw.js')
+                .then(reg => {
+                    console.log('El service worker se registró correctamente', reg)
+                })
+                .catch(err => {
+                    console.warn('Error al registar el service worker', err)
+                })
+        })
+    } else {
+        console.error('serviceWorker no está disponible en navigator')
+    }
+}
+
 
 
 /* ----------------------------------------- */
@@ -150,6 +169,7 @@ function configurarListeners() {
 function start() {
     console.log('Super Lista');
 
+    registrarServiceWorker()
     configurarListeners();
     renderLista();
 }

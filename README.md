@@ -51,3 +51,13 @@ http://colorcop.net/
 https://chrome.google.com/webstore/detail/colorzilla/bhlhnicpbhignbdhedgjhgdocnmhomnp/related?hl=es-419
 
 **IMPORTANTE**: El archivo manifest.json al mismo nivel que el index.html, en el directorio raíz de mi aplicación web/pwa
+
+# Service Worker
+Proxy de RED
+
+## Es un archivo JavaScript
+Se coloca el directorio raíz del proyecto al mismo nivel que el index.html
+
+## CAN I USE (Verifico si alguna tecnología es compatible)
+
+https://caniuse.com/
