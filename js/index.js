@@ -144,12 +144,12 @@ function configurarListeners() {
 /*             REGISTRAR SERVICE WORKER              */
 /* ------------------------------------------------- */
 function registrarServiceWorker() {
-    console.log('serviceWorker' in navigator); // true o false // Si el navegador no tiene serviceWorker me va a dar false
+    //console.log('serviceWorker' in navigator); // true o false // Si el navegador no tiene serviceWorker me va a dar false
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             this.navigator.serviceWorker.register('./sw.js')
                 .then(reg => {
-                    console.log('El service worker se registró correctamente', reg)
+                    //console.log('El service worker se registró correctamente', reg)
                 })
                 .catch(err => {
                     console.warn('Error al registar el service worker', err)

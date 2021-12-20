@@ -61,3 +61,12 @@ Se coloca el directorio raíz del proyecto al mismo nivel que el index.html
 ## CAN I USE (Verifico si alguna tecnología es compatible)
 
 https://caniuse.com/
+
+## Service Workers
+
+https://developers.google.com/web/fundamentals/primers/service-workers?hl=es
+
+## Reviso que el navegador este online
+El navigator.online verifica si el navegador tiene conexión a internet o no. True tiene conexión, false no tiene conexión a internet
+
+https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine
