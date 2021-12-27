@@ -62,6 +62,26 @@
                 <!-- ------------------------------------------------------- -->
                 <div><img src="images/supermarket.jpg" alt="Foto super"></div>
 
+                <!-- ------------------------------------------------------- -->
+                <!--           BARRA DE PROGRESO DE BORRADO TOTAL            -->
+                <!-- ------------------------------------------------------- -->
+
+                <progress min="0" max="100" value="0"></progress>
+
+                <!-- ------------------------------------------------------- -->
+                <!--                   MODAL DIALOG (Borrar todo)            -->
+                <!--  https://getmdl.io/components/index.html#dialog-section -->
+                <!-- ------------------------------------------------------- -->
+
+                <dialog class="mdl-dialog">
+                    <h4 class="mdl-dialog__title">¿Confirma borrar todo?</h4>
+                    <br>
+                    <div class="mdl-dialog__actions">
+                        <button type="button" class="mdl-button aceptar">Aceptar</button>
+                        <button type="button" class="mdl-button cancelar">Cancelar</button>
+                    </div>
+                </dialog>
+
                 <div class="contenedor">
                     <!-- Campo de ingreso del nombre del producto a ingresar -->
                     <div  class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label w-40">
@@ -101,7 +121,19 @@
         </main>
     </div>
 
+    <!-- ------------------------------------------------------------  -->
+    <!--                       LIBRERÍA JQUERY                         -->
+    <!--                     https://jquery.com/                       -->
+    <!-- ------------------------------------------------------------  -->
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <!-- ------------------------------------------------------------  -->
+    <!--           TEMPLATE ENGINE ó MOTOR DE PLANTILLAS               -->
+    <!-- https://handlebarsjs.com/installation/#downloading-handlebars -->
+    <!-- ------------------------------------------------------------  -->
+    <script src="js/handlebars.min-v4.7.7.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/index.js"></script>
 </body>
 

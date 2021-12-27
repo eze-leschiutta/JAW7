@@ -4,106 +4,93 @@ console.log(document.querySelector('title').textContent);
 /*             VARIABLES GLOBALES            */
 /* ----------------------------------------- */
 
-let listaProductos = [
+let listaProductos = [/* 
     { nombre: 'Carne', cantidad: 2, precio: 12.34 },
     { nombre: 'Pan', cantidad: 3, precio: 34.56 },
     { nombre: 'Fideos', cantidad: 4, precio: 56.78 },
-    { nombre: 'Leche', cantidad: 5, precio: 78.90 }
-]
-
-let crearLista = true;
-let ul;
+    { nombre: 'Leche', cantidad: 5, precio: 78.90 },
+ */]
 
 /* ----------------------------------------- */
 /*             FUNCIONES GLOBALES            */
 /* ----------------------------------------- */
 
 /* Borrar Producto */
-function borrarProd(index) {
-    console.log('borrarProd', index);
+async function borrarProd(id) {
+    console.log('borrarProd', id)
+    
     // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
-    listaProductos.splice(index, 1);
-    renderLista();
+    //listaProductos.splice(index, 1) 
+    await apiProd.del(id)
+
+    renderLista()
+}
+
+async function cambiarValor(tipo, id, el) {
+
+    let index = listaProductos.findIndex(prod => prod.id == id)
+    let valor = tipo == 'precio' ? Number(el.value) : parseInt(el.value)
+    console.log('cambioValor', tipo, index, valor)
+
+    listaProductos[index][tipo] = valor
+
+    let prod = listaProductos[index]
+    await apiProd.put(prod, id)
 }
 
 
 /* Cambiar Cantidad */
-function cambiarCantidad(index, el) {
+/* function cambiarCantidad(index, el) {
     let cantidad = parseInt(el.value);
     console.log('cambiarCantidad', index, cantidad);
 
     listaProductos[index].cantidad = cantidad;
-}
+} */
 
 /* Cambiar Precio */
-function cambiarPrecio(index, el) {
+/* function cambiarPrecio(index, el) {
     let precio = Number(el.value);
     console.log('cambiarPrecio', index, precio);
 
     listaProductos[index].precio = precio;
-}
+} */
 
 
 /* FUNCIÓN RENDER LISTA */
-function renderLista() {
+async function renderLista() {
     console.log('Render Lista');
 
-    if(crearLista) {
-        ul = document.createElement('ul');
-        ul.classList.add('demo-list-icon', 'mdl-list', 'w-100');
-    }
+    try {
+        /* ------------ Petición plantilla con fetch ------------ */
+        /* let datos = await fetch('plantilla-lista.hbs')
+        if(!datos.ok) throw datos.status
+        let plantilla = await datos.text() */
+        // console.log(plantilla)
 
-    ul.innerHTML = '';
+        /* ------------- Petición plantilla con jquery ajax ---------- */        
+        let plantilla = await $.ajax({url: 'plantilla-lista.hbs'})
 
-    listaProductos.forEach((prod, index) => {
-  
-        ul.innerHTML += `
-        
-        <li class="mdl-list__item">
+        /* ------------ compilar la plantilla ------------ */
+        let template = Handlebars.compile(plantilla)
 
-            <!-- Icono del producto -->
-            <span class="mdl-list__item-primary-content">
-                <i class="material-icons mdl-list__item-icon">shopping_cart</i>
-            </span>
+        /* ------------ Obtengo la lista de productos del servidor remoto ---------- */
+        listaProductos = await apiProd.get()
 
-            <!-- Nombre del producto -->
-            <span class="mdl-list__item-primary-content w-30">
-                ${prod.nombre}
-            </span>
+        /* ------------ ejecutar la plantilla compilada ---------- */
+        let html = template({listaProductos})
 
-            <!-- Cantidad del producto -->
-            <span class="mdl-list__item-primary-content w-20">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input onchange="cambiarCantidad(${index}, this)" class="mdl-textfield__input" type="text" id="cantidad-${index}" value="${prod.cantidad}">
-                    <label class="mdl-textfield__label" for="cantidad-${index}">Cantidad</label>
-                </div>
-            </span>
+        //document.querySelector('#lista').innerHTML = html
+        $('#lista').html(html)
 
-            <!-- Precio del producto -->
-            <span class="mdl-list__item-primary-content w-20 ml-item">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input onchange="cambiarPrecio(${index}, this)" class="mdl-textfield__input" type="text" id="precio-${index}" value="${prod.precio}">
-                    <label class="mdl-textfield__label" for="precio-${index}">Precio($)</label>
-                </div>
-            </span>
+        // let ul = document.querySelector('#contenedor-lista')
+        let ul = $('#contenedor-lista')
 
-            <!-- Acción (Borrar producto) -->
-            <span class="mdl-list__item-primary-content w-20">
-                <button onclick="borrarProd(${index})" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-                    <i class="material-icons">remove_shopping_cart</i>
-                </button>
-            </span>
-        </li>`
-    })
-
-    if(crearLista) {
-        document.getElementById('lista').appendChild(ul);
-    } else {
         componentHandler.upgradeElements(ul);
+
+    } catch (error) {
+        console.error('Error', error)
     }
-
-    crearLista = false;
-
+    
 }
 
 /* ----------------------------------------- */
@@ -115,27 +102,40 @@ function configurarListeners() {
 
     /* Ingreso del producto nuevo */
 
-    document.getElementById('btn-entrada-producto').addEventListener('click', () => {
+    document.getElementById('btn-entrada-producto').addEventListener('click', async () => {
         console.log('btn-entrada-producto');
 
-        let input = document.getElementById('ingreso-producto');
-        let producto = input.value;
-        console.log(producto);
+        //let input = document.getElementById('ingreso-producto');
+        let input = $('#ingreso-producto');
+
+        //let nombre = input.value;
+        let nombre = input.val();
+
+        console.log(nombre);
         
-        if(producto) {
-            listaProductos.push({ nombre: producto, cantidad: 1, precio: 0});
-            renderLista();
-            input.value = null;
+        if(nombre) {
+            let producto = { nombre: nombre, cantidad: 1, precio: 0}
+            // listaProductos.push({ nombre: producto, cantidad: 1, precio: 0});
+            await apiProd.post(producto)
+            renderLista()
+            //input.value = null
+            input.val(null)
         }
     })
 
-    /* Ingreso del producto nuevo */
+    /* Borrado total de productos */
     document.getElementById('btn-borrar-productos').addEventListener('click', () => {
         console.log('btn-borrar-productos');
 
-        if(confirm('¿Desea borrar todos los productos?')) {
+       /*  if(confirm('¿Desea borrar todos los productos?')) {
             listaProductos = [];
             renderLista();
+        }*/
+
+        if(listaProductos.length) {
+            let dialog = $('dialog')[0]
+            console.log(dialog)
+            dialog.showModal()
         }
     })
 }
@@ -160,6 +160,112 @@ function registrarServiceWorker() {
     }
 }
 
+/* --------------------------------------------- */
+/*           DEMO FUNCIONAMIENTO HBS             */
+/* --------------------------------------------- */
+
+function handleBarsTestXMLHttpRequest() {
+
+    let xhr = new XMLHttpRequest
+    xhr.open('get', 'plantilla-prueba.hbs')
+    xhr.addEventListener('load', () => {
+        let plantilla = xhr.response
+        // console.log(plantilla)
+
+        // compilamos el template
+        let template = Handlebars.compile(plantilla)
+
+        // ejecutamos la platilla compilada 
+        let html = template({
+            firstname: "Maximiliano",
+            lastname: "Principe"
+        })
+
+        //document.querySelector('#lista').innerHTML = html
+        $('#lista').html(html)
+
+    })
+    xhr.send()
+}
+
+function handleBarsTestFetchThenCatch() {
+
+    fetch('plantilla-prueba.hbs')
+        .then( datos => {
+            //console.log(datos)
+            if(!datos.ok) throw datos.status
+            return datos.text()
+        })
+        .then(plantilla => {
+            //console.log(plantilla)
+
+            // compilamos el template
+            let template = Handlebars.compile(plantilla)
+            
+            // ejecuto la plantilla compilada
+            let html = template({
+                firstname: "Maximiliano",
+                lastname: "Principe"
+            })
+
+            // document.querySelector("#lista").innerHTML = html
+            $('#lista').html(html)
+        })
+        .catch(error => console.error('Error', error))
+
+}
+
+async function handleBarsTestFetchAsyncAwait() {
+
+    try {
+
+        let datos = await fetch('plantilla-prueba.hbs')
+        // console.log(datos)
+        if(!datos.ok) throw datos.status
+        let plantilla = await datos.text()
+        //console.log(plantilla)
+
+        // compilamos el template
+        let template = Handlebars.compile(plantilla)
+
+        // ejecutamos la plantilla compilada
+        let html = template({
+            firstname: "Maximiliano",
+            lastname: "Principe"
+        })
+
+        // document.querySelector("#lista").innerHTML = html
+        $('#lista').html(html)
+
+    } catch (error) {
+        console.error('Error', error)    
+    }
+
+}
+
+/* ----------------------------------------- */
+/*                   MODAL                   */
+/* ----------------------------------------- */
+
+function iniDialog() {
+    let dialog = $('dialog')[0]
+    if(!dialog.showModal) {
+        dialogPolyfill.registerDialog(dialog)
+    }
+
+    $('dialog .aceptar').click( async () => {
+        // listaProductos = []
+
+        await apiProd.deleteAll()
+
+        renderLista()
+        dialog.close()
+    })
+
+    $('dialog .cancelar').click( () => {
+        dialog.close()
+    })
+}
 
 
 /* ----------------------------------------- */
@@ -167,10 +273,16 @@ function registrarServiceWorker() {
 /* ----------------------------------------- */
 
 function start() {
-    console.log('Super Lista');
+    console.log('Super Lista')
 
     registrarServiceWorker()
-    configurarListeners();
+    configurarListeners()
+    iniDialog()
+
+    // handleBarsTestXMLHttpRequest()
+    // handleBarsTestFetchThenCatch()
+    // handleBarsTestFetchAsyncAwait()
+
     renderLista();
 }
 
@@ -178,4 +290,6 @@ function start() {
 /*                  EJECUCIÓN                */
 /* ----------------------------------------- */
 
-start();
+// start()
+// window.onload = start
+$(document).ready(start)

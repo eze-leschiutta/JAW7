@@ -70,3 +70,8 @@ https://developers.google.com/web/fundamentals/primers/service-workers?hl=es
 El navigator.online verifica si el navegador tiene conexión a internet o no. True tiene conexión, false no tiene conexión a internet
 
 https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine
+
+# MOCKAPI
+Servicio REST completo para pruebas. Un proyecto y 4 endopoint de forma gratuita
+
+https://mockapi.io/
