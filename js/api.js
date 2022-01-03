@@ -13,7 +13,9 @@ const apiProd = (function() {
             return prods
         } catch (error) {
             console.error('Error get', error)
-            return []
+            let prods = leerListaProductos()
+            console.log(prods)
+            return prods
         }
     }
     

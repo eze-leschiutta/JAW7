@@ -12,6 +12,32 @@ let listaProductos = [/*
  */]
 
 /* ----------------------------------------- */
+/*              LOCAL STORAGE                */
+/* ----------------------------------------- */
+
+function guardarListaProductos(lista) {
+    let prods = JSON.stringify(lista)
+    localStorage.setItem('lista', prods)
+}
+
+function leerListaProductos() {
+    let lista = []
+    let prods = localStorage.getItem('lista')
+    if(prods) {
+
+        try {
+            lista = JSON.parse(prods)
+            console.log('try', lista)
+        } catch (error) {
+            lista = []
+            guardarListaProductos(lista)
+            console.log('catch', lista)
+        } 
+    }
+    return lista
+}
+
+/* ----------------------------------------- */
 /*             FUNCIONES GLOBALES            */
 /* ----------------------------------------- */
 
@@ -38,36 +64,12 @@ async function cambiarValor(tipo, id, el) {
     await apiProd.put(prod, id)
 }
 
-
-/* Cambiar Cantidad */
-/* function cambiarCantidad(index, el) {
-    let cantidad = parseInt(el.value);
-    console.log('cambiarCantidad', index, cantidad);
-
-    listaProductos[index].cantidad = cantidad;
-} */
-
-/* Cambiar Precio */
-/* function cambiarPrecio(index, el) {
-    let precio = Number(el.value);
-    console.log('cambiarPrecio', index, precio);
-
-    listaProductos[index].precio = precio;
-} */
-
-
 /* FUNCIÓN RENDER LISTA */
 async function renderLista() {
     console.log('Render Lista');
 
     try {
-        /* ------------ Petición plantilla con fetch ------------ */
-        /* let datos = await fetch('plantilla-lista.hbs')
-        if(!datos.ok) throw datos.status
-        let plantilla = await datos.text() */
-        // console.log(plantilla)
-
-        /* ------------- Petición plantilla con jquery ajax ---------- */        
+               /* ------------- Petición plantilla con jquery ajax ---------- */        
         let plantilla = await $.ajax({url: 'plantilla-lista.hbs'})
 
         /* ------------ compilar la plantilla ------------ */
@@ -75,6 +77,9 @@ async function renderLista() {
 
         /* ------------ Obtengo la lista de productos del servidor remoto ---------- */
         listaProductos = await apiProd.get()
+
+        /* ------------ Guardamos la lista de productos actual en el localStorage (persisto en el navegador) */
+        guardarListaProductos(listaProductos)
 
         /* ------------ ejecutar la plantilla compilada ---------- */
         let html = template({listaProductos})
@@ -127,11 +132,6 @@ function configurarListeners() {
     document.getElementById('btn-borrar-productos').addEventListener('click', () => {
         console.log('btn-borrar-productos');
 
-       /*  if(confirm('¿Desea borrar todos los productos?')) {
-            listaProductos = [];
-            renderLista();
-        }*/
-
         if(listaProductos.length) {
             let dialog = $('dialog')[0]
             console.log(dialog)
@@ -139,6 +139,101 @@ function configurarListeners() {
         }
     })
 }
+
+/* ----------------------------------------- */
+/*                 TEST CACHE                */
+/* ----------------------------------------- */
+
+function testCache() {
+
+    if ( window.caches ) {
+        console.log("El Browser soporta Caches")
+
+        /* Creo espacio de cache (OPEN) */
+
+        caches.open('prueba-1')
+        caches.open('prueba-2')
+        //caches.open('prueba-3')
+        caches.open('prueba-4')
+
+        /* Comprobamos si una cache existe (HAS) */
+
+        caches.has('prueba-2').then(respuesta => console.log("prueba-2: ", respuesta))
+        caches.has('prueba-3').then(console.log)
+        //caches.has('prueba-3').then(alert)
+
+        /* Borrar una cache (DELETE) */
+        caches.delete('prueba-1')
+
+        /* Listo todos los caches (KEYS) */
+        caches.keys().then(console.log)
+
+        /* Abrir una cache y trabajar con ella */
+
+        caches.open('cache-v1.1').then( cache => {
+            console.log(cache)
+            console.log(caches)
+
+            /* Agrego un recurso a la cache (ADD) */
+            // cache.add('./index.html')
+            // cache.add('./js/index.js')
+
+            /* Agrego varios recursos a la cache (addAll) */
+
+            cache.addAll([
+                './index.html',
+                './css/styles.css',
+                './images/supermarket.jpg',
+                './js/index.js'
+            ]).then(() => {
+                console.log('Recursos agregados')
+
+                /* Borro un recurso de la cache (DELETE) */
+                cache.delete('./css/styles.css').then(console.log) // Si no veo el archivo borrado. REFRESH CACHES en el navegador
+
+                /* Verifico que el recurso existe en la cache (MATCH) */
+                cache.match('./css/styles.css').then( respuesta => {
+                    if(respuesta) {
+                        console.log('Recurso encontrado')
+                    } else {
+                        console.error('Recurso inexistente')
+                    }
+                })
+
+                /* Creo o modifico el contenido de un recurso (PUT) */
+                cache.put('./index.html', new Response('Hola Mundo!'))
+
+                /* Listar todos los recursos de esta cache */
+
+                cache.keys().then(recursos => console.log('Recursos de cache', recursos))
+                cache.keys().then(recursos => {
+                    recursos.forEach( recurso => {
+                        console.log(recurso.url)
+                    })
+                })
+
+            }).catch(error => {
+                console.error('No se encontró el recurso', error)
+            })
+
+
+            /* Listo todos los nombre de los espacios de CACHE que contienen caches */
+
+            caches.keys().then( nombres => {
+                console.log('Nombres de caches: ', nombres)
+            })
+            
+        })
+
+
+
+    } else {
+        console.warn('El Browser No soporta Caches')
+    }
+   
+
+}
+
 
 /* ------------------------------------------------- */
 /*             REGISTRAR SERVICE WORKER              */
@@ -149,7 +244,26 @@ function registrarServiceWorker() {
         window.addEventListener('load', () => {
             this.navigator.serviceWorker.register('./sw.js')
                 .then(reg => {
-                    //console.log('El service worker se registró correctamente', reg)
+                    console.log('El service worker se registró correctamente', reg)
+
+
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing
+                        installingWorker.onstatechange = () => {
+                            console.log('SW! -----> ', installingWorker.state)
+                            if(installingWorker.state === 'activated') {
+                                console.log('reinciando en 5 segundos')
+                                // location.reload()
+                                
+                                // Esto del setTimeout no es necesario. Refresco la página 
+                                setTimeout(() => {
+                                    console.log('Ok!')
+                                    location.reload()
+                                }, 5000) 
+                            }
+                        }
+                    }
+
                 })
                 .catch(err => {
                     console.warn('Error al registar el service worker', err)
@@ -158,89 +272,6 @@ function registrarServiceWorker() {
     } else {
         console.error('serviceWorker no está disponible en navigator')
     }
-}
-
-/* --------------------------------------------- */
-/*           DEMO FUNCIONAMIENTO HBS             */
-/* --------------------------------------------- */
-
-function handleBarsTestXMLHttpRequest() {
-
-    let xhr = new XMLHttpRequest
-    xhr.open('get', 'plantilla-prueba.hbs')
-    xhr.addEventListener('load', () => {
-        let plantilla = xhr.response
-        // console.log(plantilla)
-
-        // compilamos el template
-        let template = Handlebars.compile(plantilla)
-
-        // ejecutamos la platilla compilada 
-        let html = template({
-            firstname: "Maximiliano",
-            lastname: "Principe"
-        })
-
-        //document.querySelector('#lista').innerHTML = html
-        $('#lista').html(html)
-
-    })
-    xhr.send()
-}
-
-function handleBarsTestFetchThenCatch() {
-
-    fetch('plantilla-prueba.hbs')
-        .then( datos => {
-            //console.log(datos)
-            if(!datos.ok) throw datos.status
-            return datos.text()
-        })
-        .then(plantilla => {
-            //console.log(plantilla)
-
-            // compilamos el template
-            let template = Handlebars.compile(plantilla)
-            
-            // ejecuto la plantilla compilada
-            let html = template({
-                firstname: "Maximiliano",
-                lastname: "Principe"
-            })
-
-            // document.querySelector("#lista").innerHTML = html
-            $('#lista').html(html)
-        })
-        .catch(error => console.error('Error', error))
-
-}
-
-async function handleBarsTestFetchAsyncAwait() {
-
-    try {
-
-        let datos = await fetch('plantilla-prueba.hbs')
-        // console.log(datos)
-        if(!datos.ok) throw datos.status
-        let plantilla = await datos.text()
-        //console.log(plantilla)
-
-        // compilamos el template
-        let template = Handlebars.compile(plantilla)
-
-        // ejecutamos la plantilla compilada
-        let html = template({
-            firstname: "Maximiliano",
-            lastname: "Principe"
-        })
-
-        // document.querySelector("#lista").innerHTML = html
-        $('#lista').html(html)
-
-    } catch (error) {
-        console.error('Error', error)    
-    }
-
 }
 
 /* ----------------------------------------- */
@@ -279,9 +310,7 @@ function start() {
     configurarListeners()
     iniDialog()
 
-    // handleBarsTestXMLHttpRequest()
-    // handleBarsTestFetchThenCatch()
-    // handleBarsTestFetchAsyncAwait()
+    // testCache()
 
     renderLista();
 }

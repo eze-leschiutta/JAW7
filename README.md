@@ -75,3 +75,8 @@ https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine
 Servicio REST completo para pruebas. Un proyecto y 4 endopoint de forma gratuita
 
 https://mockapi.io/
+
+# CACHES
+
+https://caniuse.com/?search=cache
+https://developer.mozilla.org/en-US/docs/Web/API/Cache
