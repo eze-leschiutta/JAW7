@@ -140,101 +140,6 @@ function configurarListeners() {
     })
 }
 
-/* ----------------------------------------- */
-/*                 TEST CACHE                */
-/* ----------------------------------------- */
-
-function testCache() {
-
-    if ( window.caches ) {
-        console.log("El Browser soporta Caches")
-
-        /* Creo espacio de cache (OPEN) */
-
-        caches.open('prueba-1')
-        caches.open('prueba-2')
-        //caches.open('prueba-3')
-        caches.open('prueba-4')
-
-        /* Comprobamos si una cache existe (HAS) */
-
-        caches.has('prueba-2').then(respuesta => console.log("prueba-2: ", respuesta))
-        caches.has('prueba-3').then(console.log)
-        //caches.has('prueba-3').then(alert)
-
-        /* Borrar una cache (DELETE) */
-        caches.delete('prueba-1')
-
-        /* Listo todos los caches (KEYS) */
-        caches.keys().then(console.log)
-
-        /* Abrir una cache y trabajar con ella */
-
-        caches.open('cache-v1.1').then( cache => {
-            console.log(cache)
-            console.log(caches)
-
-            /* Agrego un recurso a la cache (ADD) */
-            // cache.add('./index.html')
-            // cache.add('./js/index.js')
-
-            /* Agrego varios recursos a la cache (addAll) */
-
-            cache.addAll([
-                './index.html',
-                './css/styles.css',
-                './images/supermarket.jpg',
-                './js/index.js'
-            ]).then(() => {
-                console.log('Recursos agregados')
-
-                /* Borro un recurso de la cache (DELETE) */
-                cache.delete('./css/styles.css').then(console.log) // Si no veo el archivo borrado. REFRESH CACHES en el navegador
-
-                /* Verifico que el recurso existe en la cache (MATCH) */
-                cache.match('./css/styles.css').then( respuesta => {
-                    if(respuesta) {
-                        console.log('Recurso encontrado')
-                    } else {
-                        console.error('Recurso inexistente')
-                    }
-                })
-
-                /* Creo o modifico el contenido de un recurso (PUT) */
-                cache.put('./index.html', new Response('Hola Mundo!'))
-
-                /* Listar todos los recursos de esta cache */
-
-                cache.keys().then(recursos => console.log('Recursos de cache', recursos))
-                cache.keys().then(recursos => {
-                    recursos.forEach( recurso => {
-                        console.log(recurso.url)
-                    })
-                })
-
-            }).catch(error => {
-                console.error('No se encontró el recurso', error)
-            })
-
-
-            /* Listo todos los nombre de los espacios de CACHE que contienen caches */
-
-            caches.keys().then( nombres => {
-                console.log('Nombres de caches: ', nombres)
-            })
-            
-        })
-
-
-
-    } else {
-        console.warn('El Browser No soporta Caches')
-    }
-   
-
-}
-
-
 /* ------------------------------------------------- */
 /*             REGISTRAR SERVICE WORKER              */
 /* ------------------------------------------------- */
@@ -245,6 +150,18 @@ function registrarServiceWorker() {
             this.navigator.serviceWorker.register('./sw.js')
                 .then(reg => {
                     console.log('El service worker se registró correctamente', reg)
+
+                    initialiseUI(reg)
+
+                    // Habilitamos el funcionamiento de las notificaciones
+                    // https://developer.mozilla.org/en-US/docs/Web/API/notification
+                    Notification.requestPermission(function(res) {
+                        if (res === 'granted') {
+                            navigator.serviceWorker.ready.then(function(reg) {
+                                console.log(reg)
+                            })
+                        }
+                    })
 
 
                     reg.onupdatefound = () => {
@@ -310,9 +227,7 @@ function start() {
     configurarListeners()
     iniDialog()
 
-    // testCache()
-
-    renderLista();
+    renderLista()
 }
 
 /* ----------------------------------------- */
